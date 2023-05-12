@@ -133,3 +133,5 @@ INSERT INTO LOT VALUES(3, 1000, 500000, 'SCH-1001');
 INSERT INTO LOT VALUES(4, 2500, 150000, 'SCH-1223');
 INSERT INTO LOT VALUES(5, 1200, 1600000, 'SCH-1491');
 
+----------------------------------(VANZATOR)----------------------------------
+
