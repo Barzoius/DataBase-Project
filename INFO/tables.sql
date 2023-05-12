@@ -73,7 +73,7 @@ SELECT *
     
 --------------------------------(PROCESOR)--------------------------------
     
-CREATE TABLE PROCESO
+CREATE TABLE PROCESOR
     ( ID_PROCESOR  NUMBER CONSTRAINT  ID_PROCESOR_nn NOT NULL  
     , NUME_PROCESOR VARCHAR(35)
     );
