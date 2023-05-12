@@ -1,4 +1,4 @@
--------------------------------GENERATIE-------------------------------
+-------------------------------(GENERATIE)-------------------------------
 
 CREATE TABLE GENERATIE 
     ( ID_GENERATIE   NUMBER  
@@ -30,7 +30,7 @@ INSERT INTO GENERATIE VALUES ( 5, 2017 , 2020, 9);
 
 INSERT INTO GENERATIE VALUES ( 6, 2021 , 2030, 3);
 
--------------------------------CONSOLA-------------------------------
+-------------------------------(CONSOLA)-------------------------------
 
 CREATE TABLE CONSOLA( ID_CONSOLA VARCHAR(25) CONSTRAINT ID_CONSOLA_nn NOT NULL, 
     					DATA_LANSARE VARCHAR(15),
@@ -51,7 +51,32 @@ INSERT INTO CONSOLA VALUES('PLAYSTATION_STREET', '01/07/2010', 4);
 INSERT INTO CONSOLA VALUES('PLAYSTATION_4', '15/12/2017', 5);
 INSERT INTO CONSOLA VALUES('PLAYSTATION_vita', '13/03/2018', 5);
 
----------------------------------MODEL---------------------------------
+-------------------------------(PRODUCATOR)-------------------------------
+
+CREATE TABLE PRODUCATOR 
+    ( ID_PRODUCATOR   NUMBER CONSTRAINT  ID_PRODUCATOR_nn NOT NULL  
+    , NUME_PRODUCATOR VARCHAR(35)
+    , DURATA_PARTENERIAT  NUMBER
+    );
+
+CREATE UNIQUE INDEX ID_PRODUCATOR_pk 
+ON PRODUCATOR (ID_PRODUCATOR);
+
+ALTER TABLE PRODUCATOR
+ADD (CONSTRAINT ID_PRODUCATOR_pk
+    		PRIMARY KEY(ID_PRODUCATOR));
+
+INSERT INTO PRODUCATOR VALUES(1, 'SONY', 17);
+INSERT INTO PRODUCATOR VALUES(2, 'AMD', 4);
+INSERT INTO PRODUCATOR VALUES(3, 'INTEL', 10);
+INSERT INTO PRODUCATOR VALUES(4, 'RAZER', 8);
+INSERT INTO PRODUCATOR VALUES(5, 'SONY.JP', 18);
+
+
+SELECT *
+    FROM PRODUCATOR;
+
+---------------------------------(MODEL)---------------------------------
 
 CREATE TABLE MODEL
     ( ID_MODEL   VARCHAR(25) 
