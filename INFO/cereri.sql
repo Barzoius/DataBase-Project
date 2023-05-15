@@ -23,3 +23,19 @@ SELECT v.NUME_VANZATOR || ' e un magazin electronic' AS E_MAGAZIN
 FROM MAGAZIN m, VANZATOR v
 WHERE NVL(DECODE(NR_MAGAZINE, 0, -1), 12) = -1
 AND m.ID_VANZATOR = v.ID_VANZATOR;
+
+select INITCAP(a.NUME), INITCAP(a.PRENUME), l.COD_POSTAL, l.ORAS, t.NUME_TARA, a.ID_jOB
+from ANGAJAT a, ECHIPA e, LOCATIE l, tara t
+where a.ID_ECHIPA = e.ID_ECHIPA
+and e.ID_LOCATIE = l.ID_LOCATIE
+and t.ID_TARA = l.ID_TARA
+and SUBSTR(l.COD_POSTAL, -3) = '141';
+
+
+select INITCAP(NUME), INITCAP(PRENUME), ID_JOB
+from ANGAJAT 
+where ID_ECHIPA in (select ID_ECHIPA
+    					from ECHIPA 
+    					where ID_LOCATIE in (select ID_LOCATIE
+    										from LOCATIE
+    										where SUBSTR(COD_POSTAL, -3) = '141'));
