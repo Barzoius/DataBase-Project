@@ -39,3 +39,12 @@ where ID_ECHIPA in (select ID_ECHIPA
     					where ID_LOCATIE in (select ID_LOCATIE
     										from LOCATIE
     										where SUBSTR(COD_POSTAL, -3) = '141'));
+										
+										
+								
+select j.ZILE_DE_LUCRU, SUM(a.SALARIU) as SAL_TOTAL, a.ID_JOB
+from ANGAJAT a, JOB j
+where a.ID_JOB = j.ID_JOB
+group by j.ZILE_DE_LUCRU, a.ID_JOB
+having SUM(a.SALARIU)  > (  select avg(j.SALARIU_MAX)
+    						from JOB j); !!!!!!!!!!!!!!!!!!!!!								
