@@ -47,4 +47,13 @@ from ANGAJAT a, JOB j
 where a.ID_JOB = j.ID_JOB
 group by j.ZILE_DE_LUCRU, a.ID_JOB
 having SUM(a.SALARIU)  > (  select avg(j.SALARIU_MAX)
-    						from JOB j); !!!!!!!!!!!!!!!!!!!!!								
+    						from JOB j); !!!!!!!!!!!!!!!!!!!!!	
+						
+				
+select SUM(m.PRET), l.NR_UNITATI, c.DATA_LANSARE
+from MODEL m, LOT l, CONSOLA c
+where c.ID_CONSOLA = m.ID_CONSOLA
+and m.ID_MODEL = l.ID_MODEL
+group by l.NR_UNITATI, c.DATA_LANSARE
+having SUM(m.PRET)*l.NR_UNITATI > (select avg(l.VENITURI_ASTEPTATE)
+    				   from LOT l);				
