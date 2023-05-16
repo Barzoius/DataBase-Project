@@ -56,4 +56,16 @@ where c.ID_CONSOLA = m.ID_CONSOLA
 and m.ID_MODEL = l.ID_MODEL
 group by l.NR_UNITATI, c.DATA_LANSARE
 having SUM(m.PRET)*l.NR_UNITATI > (select avg(l.VENITURI_ASTEPTATE)
-    				   from LOT l);				
+    				   from LOT l);		
+				   
+			
+with top_jobs as(
+    	select TITLU_JOB, SALARIU_MAX, ID_JOB
+    	from JOB
+    	where SALARIU_MIN > 2500
+    	order by SALARIU_MAX)
+
+select aux.TITLU_JOB, a.NUME, a.PRENUME
+from ANGAJAT a, top_jobs aux
+where aux.ID_JOB = a.ID_JOB;			
+				   
