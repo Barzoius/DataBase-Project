@@ -67,5 +67,18 @@ with top_jobs as(
 
 select aux.TITLU_JOB, a.NUME, a.PRENUME
 from ANGAJAT a, top_jobs aux
-where aux.ID_JOB = a.ID_JOB;			
+where aux.ID_JOB = a.ID_JOB;		
+
+
+------------------------------------------------(13)-------------------------------------------------------
+
+
+UPDATE JOB 
+SET SALARIU_MAX = 5000
+WHERE SALARIU_MIN < (SELECT min(a.SALARIU)
+    				FROM ANGAJAT a
+    				WHERE a.NATIONALITATE = 'ROMAN');
+
+SELECT *
+FROM JOB;
 				   
