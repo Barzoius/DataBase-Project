@@ -1,3 +1,5 @@
+----------------(1)----------------
+
 select j.id_job, j.titlu_job, e.id_echipa, e.nume_echipa,l.id_locatie, INITCAP(l.oras)	
 from job j, echipa e, locatie l
 where j.salariu_min > (select a.salariu
