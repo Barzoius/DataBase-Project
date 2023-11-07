@@ -1,46 +1,47 @@
 ------------------(1)------------------
 
-CREATE TABLE specific_angajat AS SELECT id_angajat, nume, prenume, email, nr_telefon, sex, nationalitate 
-                                 FROM angajat;
+CREATE OR REPLACE PROCEDURE gestionare_angajati IS 
+  --Declarații de tipuri--
+  TYPE tuplu IS RECORD (
+    tuplu_id_angajat angajat.id_angajat%TYPE,
+    tuplu_id_echipa angajat.id_echipa%TYPE
+  );
 
-CREATE OR REPLACE TYPE alergi is TABLE of VARCHAR(20);
-/
-ALTER TABLE specific_angajat
-ADD (alergie alergi) 
-NESTED TABLE alergie STORE AS lista_de_alergi;
+  TYPE tabou_indexat IS TABLE OF tuplu INDEX BY PLS_INTEGER;
+  TYPE tabou_imbricat IS TABLE OF NUMBER;
+  TYPE vector IS VARRAY(20) OF NUMBER;
 
-INSERT INTO specific_angajat
-VALUES ('A-25', 'NU_DAN', 'NU_DANIEL','nu.dan.daniel@gmail.com',
-        '085556664', 'M', 'AMERICAN', alergi('Nuci', 'Masline', 'Polen'));
+  --Declarații de variabile--
+  tabou_indexat_echipe tabou_indexat;
+  tabou_imbricat_angajati tabou_imbricat := tabou_imbricat();
+  vec vector := vector();
 
-UPDATE specific_angajat
-SET alergie = alergi('Alune', 'Polen')
-WHERE id_angajat = 'A-01';
-
-
-    
-DECLARE 
- TYPE tabou_indexat IS TABLE OF specific_angajat INDEX BY PLS_INTEGER;
--- TYPE tabou_imbricat IS TABLE OF NUMBER;
- TYPE vector is VARRAY(20) OF NUMBER;
-
- tab_echipe tablou_indexat;
- tab_angajati tablou_imbricat := tablou_imbricat();
- vec vector := vector();
+  limita_superioara NUMBER;
 
 BEGIN
+  SELECT COUNT(*) INTO limita_superioara FROM angajat;
 
-
+  FOR i IN 1..limita_superioara LOOP
+  SELECT id_angajat, id_echipa INTO 
+         tabou_indexat_echipe(i).tuplu_id_angajat, tabou_indexat_echipe(i).tuplu_id_echipa 
+         FROM angajat WHERE ROWNUM = i;
+  END LOOP;
+  FOR i IN tabou_indexat_echipe.FIRST .. tabou_indexat_echipe.LAST LOOP
+    DBMS_OUTPUT.PUT_LINE(tabou_indexat_echipe(i).tuplu_id_angajat ||' '|| tabou_indexat_echipe(i).tuplu_id_echipa);
+  END LOOP;
+  
 END;
 /
 
+BEGIN
+  gestionare_angajati;
+END;
+/
     
 select * from angajat;
 select * from echipa;
-select * from specific_angajat;
+select * from locatie;
+select * from tara;
 
-SELECT a.id_angajat, b.*
-FROM specific_angajat a, TABLE (a.alergie) b;
 
-DROP TABLE specific_angajat;;
-DROP TYPE alergi;
+DROP PROCEDURE gestionare_angajati;
