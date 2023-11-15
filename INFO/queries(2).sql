@@ -107,10 +107,6 @@ DROP PROCEDURE gestionare_angajati;
 
 ------------------(2)------------------
 
--- Problema: Să se calculeze suma totală a salariilor angajaților dintr-o companie, împărțită pe echipe, 
---     iar apoi să se actualizeze salariul mediu al fiecărui echipa cu o creștere procentuală specifică.
-
-
 CREATE OR REPLACE PROCEDURE cursoare IS 
   TYPE refcursor IS REF CURSOR;
   CURSOR C1 IS
@@ -137,15 +133,22 @@ CREATE OR REPLACE PROCEDURE cursoare IS
   vec vector := vector();
 
 BEGIN
+  DBMS_OUTPUT.PUT_LINE('-------------------------------(7)-------------------------------');
+  DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o 
+rezolvați folosind un subprogram stocat independent care să 
+utilizeze 2 tipuri diferite de cursoare studiate, unul dintre 
+acestea fiind cursor parametrizat, dependent de celălalt cursor. 
+Apelați subprogramul.');
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+  DBMS_OUTPUT.PUT_LINE('PROBLEMA: Sa se afle salriul mediu al fiecarei echipe.');
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
   FOR i IN C1 LOOP
     v_echipa := i.id_echipa;
     v_salariu_total := 0;
     v_numar_angajati := 0;
 
-    -- Open cursor C2 with parameter
     FOR j IN C2(v_echipa) LOOP
-      -- Now, j represents the result of C2 for the specific v_echipa
-      -- You can use j.id_echipa as needed in the following logic
+      -- j = rezultatul in C2 pentru v_echipa
 
       FOR k IN (SELECT salariu FROM angajat WHERE id_echipa = j.id_echipa) LOOP
         v_salariu_total := v_salariu_total + k.salariu;
@@ -162,10 +165,12 @@ BEGIN
 	  
     END LOOP;
   END LOOP;
-
+    DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('----------------------(ECHIPA/SALRIU_MEDIU)----------------------');
    FOR i IN vec.FIRST .. vec.LAST LOOP
     DBMS_OUTPUT.PUT_LINE(vec(i).tuplu_id_echipa ||' '|| vec(i).tuplu_salariu_mediu);
   END LOOP;
+    DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
 END;
 /
 
