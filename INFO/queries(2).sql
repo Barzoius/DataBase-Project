@@ -107,38 +107,77 @@ DROP PROCEDURE gestionare_angajati;
 
 ------------------(2)------------------
 
--- Problema: Să se calculeze suma totală a salariilor angajaților dintr-o companie, împărțită pe departamente, 
---     iar apoi să se actualizeze salariul mediu al fiecărui departament cu o creștere procentuală specifică.
+-- Problema: Să se calculeze suma totală a salariilor angajaților dintr-o companie, împărțită pe echipe, 
+--     iar apoi să se actualizeze salariul mediu al fiecărui echipa cu o creștere procentuală specifică.
 
 
 CREATE OR REPLACE PROCEDURE cursoare IS 
-
   TYPE refcursor IS REF CURSOR;
   CURSOR C1 IS
     SELECT id_echipa, salariu
     FROM angajat;
 
-  CURSOR C2(p_C1 refcursor) IS
+  CURSOR C2(p_id_echipa angajat.id_echipa%TYPE) IS
     SELECT DISTINCT id_echipa
-    FROM angajat;
+    FROM angajat
+    WHERE id_echipa = p_id_echipa;
 
   v_echipa angajat.id_echipa%TYPE;
   v_salariu_total NUMBER := 0;
   v_numar_angajati NUMBER := 0;
+  salariu_mediu NUMBER := 0;
+
+  TYPE tuplu1 IS RECORD (
+    tuplu_id_echipa angajat.id_echipa%TYPE,
+    tuplu_salariu_mediu NUMBER := 0
+  );
+
+  TYPE vector IS VARRAY(35) OF tuplu1;
+
+  vec vector := vector();
+
 BEGIN
+  FOR i IN C1 LOOP
+    v_echipa := i.id_echipa;
+    v_salariu_total := 0;
+    v_numar_angajati := 0;
 
-    FOR i IN C2(C1) LOOP
-     v_echipa := i.id_echipa;
-     v_salariu_total := 0;
-     v_numar_angajati := 0;
+    -- Open cursor C2 with parameter
+    FOR j IN C2(v_echipa) LOOP
+      -- Now, j represents the result of C2 for the specific v_echipa
+      -- You can use j.id_echipa as needed in the following logic
 
-    FOR j IN (SELECT salariu FROM angajat WHERE id_echipa = v_echipa) LOOP
-      v_salariu_total := v_salariu_total + j.salariu;
-      v_numar_angajati := v_numar_angajati + 1;
+      FOR k IN (SELECT salariu FROM angajat WHERE id_echipa = j.id_echipa) LOOP
+        v_salariu_total := v_salariu_total + k.salariu;
+        v_numar_angajati := v_numar_angajati + 1;
+      END LOOP;
+
+
+      salariu_mediu := v_salariu_total / v_numar_angajati;
+      vec.extend;
+      vec(vec.count) := tuplu1(
+           j.id_echipa,
+           salariu_mediu
+          );
+	  
     END LOOP;
+  END LOOP;
 
-   UPDATE echipa SET salariu_mediu = v_salariu_total / v_numar_angajati * 1.1 WHERE id_echipa = v_echipa;
-   END LOOP;
-
+   FOR i IN vec.FIRST .. vec.LAST LOOP
+    DBMS_OUTPUT.PUT_LINE(vec(i).tuplu_id_echipa ||' '|| vec(i).tuplu_salariu_mediu);
+  END LOOP;
 END;
 /
+
+    
+BEGIN
+  cursoare;
+END;
+/
+
+select * from echipa;
+select distinct id_echipa from angajat;
+select * from angajat;
+select * from job;
+
+drop procedure cursoare;
