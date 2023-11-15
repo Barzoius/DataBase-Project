@@ -1,5 +1,4 @@
 ------------------(1)------------------
-
 CREATE OR REPLACE PROCEDURE gestionare_angajati IS 
   --Declarații de tipuri--
   TYPE tuplu1 IS RECORD (
@@ -32,12 +31,29 @@ CREATE OR REPLACE PROCEDURE gestionare_angajati IS
 BEGIN
   SELECT COUNT(*) INTO limita_superioara FROM angajat;
   SELECT COUNT(*) INTO limita_superioara_2 FROM echipa;
+  DBMS_OUTPUT.PUT_LINE('-------------------------------(6)-------------------------------');
+  DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o 
+rezolvați folosind un subprogram stocat independent care să 
+utilizeze toate cele 3 tipuri de colecții studiate. 
+Apelați subprogramul');
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+  DBMS_OUTPUT.PUT_LINE('PROBLEMA: Sa se creeze 3 tipuri diferite de colectii, una care sa
+contina id-urile angajatilor si id-urile echipelor in care 
+lucreaza, alta care sa contina id-urile echipelor si id-urile
+locatiilor in care se afla, iar ultima sa fie creata din primele
+doua si sa contina id-urile angajatilor cat si id-urile 
+locatiilor in care se afla echipele lor.');
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+  DBMS_OUTPUT.NEW_LINE;
+  DBMS_OUTPUT.NEW_LINE;
+  -- DBMS_OUTPUT.PUT_LINE();
+  DBMS_OUTPUT.PUT_LINE('');
   ----TABLOUL INDEXAT----
   SELECT id_angajat, id_echipa
   BULK COLLECT INTO tabou_indexat_echipe
   FROM angajat;
 
-  DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+  DBMS_OUTPUT.PUT_LINE('--------------------------TABLOU_INDEXAT-------------------------');
   FOR i IN tabou_indexat_echipe.FIRST .. tabou_indexat_echipe.LAST LOOP
     DBMS_OUTPUT.PUT_LINE(tabou_indexat_echipe(i).tuplu_id_angajat ||' '|| tabou_indexat_echipe(i).tuplu_id_echipa);
   END LOOP;
@@ -45,9 +61,9 @@ BEGIN
   ----TABLOUL IMBRICAT----
   SELECT id_locatie, id_echipa
   BULK COLLECT INTO tabou_imbricat_locatie
-  FROM echipa;
-
-  DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+  FROM echipa;        
+					  
+  DBMS_OUTPUT.PUT_LINE('-------------------------TABLOU_IMBRICAT-------------------------');
   FOR i IN tabou_imbricat_locatie.FIRST .. tabou_imbricat_locatie.LAST LOOP
     DBMS_OUTPUT.PUT_LINE(tabou_imbricat_locatie(i).tuplu_id_locatie ||' '|| tabou_imbricat_locatie(i).tuplu_id_echipa);
   END LOOP;
@@ -67,10 +83,11 @@ BEGIN
   END LOOP;
   END LOOP;    
 
-  DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+  DBMS_OUTPUT.PUT_LINE('-----------------------------VECTOR------------------------------');
   FOR i IN vec.FIRST .. vec.LAST LOOP
     DBMS_OUTPUT.PUT_LINE(vec(i).tuplu_id_angajat ||' '|| vec(i).tuplu_id_locatie);
   END LOOP;
+  DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
 END;
 /
 
@@ -78,7 +95,7 @@ BEGIN
   gestionare_angajati;
 END;
 /
-    
+
 -- select * from angajat;
 -- select * from echipa;
 -- select * from locatie;
