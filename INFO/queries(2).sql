@@ -1,5 +1,8 @@
 ------------------(1)------------------
 
+-- Am schimbat modul in care pun datele in tabelul indexat si imbricat
+-- Am folosti BULK COLLECT INTO in loc de un for loop
+
 CREATE OR REPLACE PROCEDURE gestionare_angajati IS 
   --Declarații de tipuri--
   TYPE tuplu1 IS RECORD (
@@ -31,12 +34,9 @@ CREATE OR REPLACE PROCEDURE gestionare_angajati IS
 BEGIN
   SELECT COUNT(*) INTO limita_superioara FROM angajat;
   ----TABLOUL INDEXAT----
-  FOR i IN 1..limita_superioara LOOP
-  SELECT id_angajat, id_echipa INTO 
-         tabou_indexat_echipe(i).tuplu_id_angajat, 
-         tabou_indexat_echipe(i).tuplu_id_echipa 
-         FROM angajat WHERE ROWNUM = i;
-  END LOOP;
+  SELECT id_angajat, id_echipa
+  BULK COLLECT INTO tabou_indexat_echipe
+  FROM angajat;
 
   DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
   FOR i IN tabou_indexat_echipe.FIRST .. tabou_indexat_echipe.LAST LOOP
@@ -44,12 +44,9 @@ BEGIN
   END LOOP;
 
   ----TABLOUL IMBRICAT----
-  FOR i IN 1..limita_superioara LOOP
-  tabou_imbricat_locatie.extend;
-  SELECT id_locatie, id_echipa INTO tabou_imbricat_locatie(i).tuplu_id_locatie, 
-                                    tabou_imbricat_locatie(i).tuplu_id_echipa
-                               FROM echipa WHERE ROWNUM = i;
-  END LOOP;
+  SELECT id_locatie, id_echipa
+  BULK COLLECT INTO tabou_imbricat_locatie
+  FROM echipa;
 
   DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
   FOR i IN tabou_imbricat_locatie.FIRST .. tabou_imbricat_locatie.LAST LOOP
@@ -78,10 +75,12 @@ BEGIN
 END;
 /
 
-BEGIN
-  gestionare_angajati;
-END;
-/
+-- BEGIN
+--   gestionare_angajati;
+-- END;
+-- /
+
+    
     
 select * from angajat;
 select * from echipa;
