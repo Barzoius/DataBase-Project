@@ -1,8 +1,5 @@
 ------------------(1)------------------
 
--- Am schimbat modul in care pun datele in tabelul indexat si imbricat
--- Am folosti BULK COLLECT INTO in loc de un for loop
-
 CREATE OR REPLACE PROCEDURE gestionare_angajati IS 
   --Declarații de tipuri--
   TYPE tuplu1 IS RECORD (
@@ -30,9 +27,11 @@ CREATE OR REPLACE PROCEDURE gestionare_angajati IS
   vec vector := vector();
 
   limita_superioara NUMBER;
+  limita_superioara_2 NUMBER;
 
 BEGIN
   SELECT COUNT(*) INTO limita_superioara FROM angajat;
+  SELECT COUNT(*) INTO limita_superioara_2 FROM echipa;
   ----TABLOUL INDEXAT----
   SELECT id_angajat, id_echipa
   BULK COLLECT INTO tabou_indexat_echipe
@@ -56,14 +55,14 @@ BEGIN
   ----VECTOR----
   FOR i in 1..limita_superioara LOOP
   vec.extend;
-  FOR j in i..limita_superioara LOOP
+  FOR j in 1..limita_superioara_2 LOOP
        IF tabou_indexat_echipe(i).tuplu_id_echipa = tabou_imbricat_locatie(j).tuplu_id_echipa THEN
        --vec.extend;
           vec(vec.count) := tuplu3(
            tabou_indexat_echipe(i).tuplu_id_angajat,
            tabou_imbricat_locatie(j).tuplu_id_locatie
           );
-       EXIT;
+       -- EXIT;
        END IF;  
   END LOOP;
   END LOOP;    
@@ -75,19 +74,17 @@ BEGIN
 END;
 /
 
--- BEGIN
---   gestionare_angajati;
--- END;
--- /
-
+BEGIN
+  gestionare_angajati;
+END;
+/
     
-    
-select * from angajat;
-select * from echipa;
-select * from locatie;
-select * from tara;
+-- select * from angajat;
+-- select * from echipa;
+-- select * from locatie;
+-- select * from tara;
 
-select count(*) from angajat;
+-- select count(*) from angajat;
 
 DROP PROCEDURE gestionare_angajati;
 
