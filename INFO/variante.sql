@@ -25,6 +25,8 @@ CREATE OR REPLACE PROCEDURE cursoare IS
   TYPE contor is  VARRAY(35) of angajat.id_echipa%TYPE;
   vector_contor contor := contor();
 
+   v_flag BOOLEAN := FALSE;
+
 BEGIN
   DBMS_OUTPUT.PUT_LINE('-------------------------------(7)-------------------------------');
   DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o 
@@ -52,17 +54,28 @@ Apelați subprogramul.');
 
 
       salariu_mediu := v_salariu_total / v_numar_angajati;
+      v_flag := FALSE;
       FOR w in vector_contor.FIRST .. vector_contor.LAST LOOP
-        IF j.id_echipa = vector_contor(w) and w != vector_contor.count THEN 
-        CONTINUE;
-        ELSE
+        IF j.id_echipa = vector_contor(w) THEN 
+         v_flag := TRUE;
+		 EXIT;
+        END IF;
+	  END LOOP;
+
+	  IF NOT v_flag THEN
+
+         vector_contor.extend;
+		 vector_contor(vector_contor.count) := j.id_echipa;
+
          vec.extend;
          vec(vec.count) := tuplu1(
            j.id_echipa,
            salariu_mediu
           );
-        END IF;
-      END LOOP;
+	  END IF;
+			
+      
+
 	  
     END LOOP;
   END LOOP;
