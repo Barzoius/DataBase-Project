@@ -186,3 +186,93 @@ select * from angajat;
 select * from job;
 
 drop procedure cursoare;
+
+------------------(3)------------------
+
+CREATE OR REPLACE PROCEDURE profit IS 
+
+v_id_vanzator vanzator.id_vanzator%TYPE := 'V-05';
+
+TYPE tuplu IS RECORD (
+    t_nume_tara tara.nume_tara%TYPE,
+    t_id_vanzator vanzator.id_vanzator%TYPE,
+    t_nume_vanzator vanzator.nume_vanzator%TYPE,
+    t_nr_magazine magazin.nr_magazine%TYPE,
+    t_venit_total_adus vanzator.venit_total_adus%TYPE,
+    t_profit VARCHAR2(100)
+  );
+
+TYPE tabou_indexat IS TABLE OF tuplu INDEX BY PLS_INTEGER;
+
+tabou_indexat_pentru_profit tabou_indexat;
+
+v_nr_magazine magazin.nr_magazine%TYPE;
+
+BEGIN    
+
+  SELECT SUM(m.nr_magazine) INTO v_nr_magazine
+  FROM VANZATOR v, MAGAZIN m
+  WHERE m.ID_VANZATOR = v.id_vanzator
+  AND v.id_vanzator = v_id_vanzator;
+
+  IF v_nr_magazine = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('Vanzatorul nu are magazine');
+    RETURN;
+  END IF;
+
+    SELECT LOWER(t.NUME_TARA), v.ID_VANZATOR, v.NUME_VANZATOR, m.NR_MAGAZINE,  v.VENIT_TOTAL_ADUS, 
+    CASE 
+    	WHEN (m.NR_MAGAZINE/t.PRET_DE_EXPORT) > t.PRET_DE_EXPORT THEN INITCAP('Este profitabil.')
+        WHEN (m.NR_MAGAZINE/t.PRET_DE_EXPORT) = t.PRET_DE_EXPORT THEN INITCAP('ar trebui sa consideram si alti factori.')
+        ELSE 'Nu este profitabi.'
+    END AS PROFIT   
+    BULK COLLECT INTO tabou_indexat_pentru_profit
+    FROM TARA t, MAGAZIN m, VANZATOR v
+    WHERE t.ID_TARA = m.ID_TARA
+    AND v.ID_VANZATOR = m.ID_VANZATOR 
+    -- AND v.ID_VANZATOR = v_id_vanzator
+    -- AND v.VENIT_TOTAL_ADUS >= 1500000
+    ORDER BY m.NR_MAGAZINE;
+	DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+	FOR i IN 1..tabou_indexat_pentru_profit.COUNT LOOP
+        IF tabou_indexat_pentru_profit(i).t_venit_total_adus > 1500000 THEN    
+            DBMS_OUTPUT.PUT_LINE(
+              'Tara: ' || tabou_indexat_pentru_profit(i).t_nume_tara ||
+              ', ID Vanzator: ' || tabou_indexat_pentru_profit(i).t_id_vanzator ||
+              ', Nume Vanzator: ' || tabou_indexat_pentru_profit(i).t_nume_vanzator ||
+              ', Nr Magazine: ' || tabou_indexat_pentru_profit(i).t_nr_magazine ||
+              ', Venit Total Adus: ' || tabou_indexat_pentru_profit(i).t_venit_total_adus ||
+              ', Profit: ' || tabou_indexat_pentru_profit(i).t_profit
+            );
+        	DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+		END IF;
+  END LOOP;
+
+  FOR i IN 1..tabou_indexat_pentru_profit.COUNT LOOP
+    IF tabou_indexat_pentru_profit(i).t_venit_total_adus < 1500000 THEN
+      DBMS_OUTPUT.PUT_LINE('Profitul direct este prea mic pentru vanzatorul ' 
+                           ||  tabou_indexat_pentru_profit(i).t_id_vanzator );
+    END IF;
+  END LOOP;
+
+END;
+/
+
+BEGIN 
+    profit;
+END;
+/
+
+DROP PROCEDURE profit;  
+
+SELECT SUM(m.nr_magazine) as TOTAl
+  FROM VANZATOR v, MAGAZIN m
+  WHERE m.ID_VANZATOR = v.id_vanzator
+  AND v.id_vanzator = 'V-01'
+    
+
+select * from vanzator;
+select * from magazin;
+
+INSERT INTO VANZATOR VALUES ('V-06', '---', 200000);
+INSERT INTO MAGAZIN VALUES (UPPER('V-06'), UPPER('eu-02'), 0);
