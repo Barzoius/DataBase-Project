@@ -22,6 +22,10 @@ AND v.ID_VANZATOR = m.ID_VANZATOR
 AND v.VENIT_TOTAL_ADUS >= 1500000
 ORDER BY m.NR_MAGAZINE;
 
+--CERINTA: SA se afle daca un anumit vanzator ne aduce profit cu magazine sale intr o anumita tara
+--1)Daca acel vanzator ne aduce overall mai mult de 1500000 ca venit_total_adus atunci sigur ne aduce profit indifernet
+--2)Daca venitul_total_adus este mai mic ca 1500000 atunci calculam cu formula din CASE daca aceest magazin aduce suficent profit
+
 ----------------(3)----------------
 
 select g.id_generatie, min(m.pret), max(m.pret) 
