@@ -188,10 +188,11 @@ select * from job;
 drop procedure cursoare;
 
 ------------------(3)------------------
+--incearca V-02, V-03, V-05
 
-CREATE OR REPLACE PROCEDURE profit IS 
+CREATE OR REPLACE FUNCTION profit(vanz IN VARCHAR2) RETURN VARCHAR2 IS 
 
-v_id_vanzator vanzator.id_vanzator%TYPE := 'V-05';
+v_id_vanzator vanzator.id_vanzator%TYPE := 'V-03';
 
 TYPE tuplu IS RECORD (
     t_nume_tara tara.nume_tara%TYPE,
@@ -217,7 +218,7 @@ BEGIN
 
   IF v_nr_magazine = 0 THEN
     DBMS_OUTPUT.PUT_LINE('Vanzatorul nu are magazine');
-    RETURN;
+    RETURN NULL;
   END IF;
 
     SELECT LOWER(t.NUME_TARA), v.ID_VANZATOR, v.NUME_VANZATOR, m.NR_MAGAZINE,  v.VENIT_TOTAL_ADUS, 
@@ -230,9 +231,10 @@ BEGIN
     FROM TARA t, MAGAZIN m, VANZATOR v
     WHERE t.ID_TARA = m.ID_TARA
     AND v.ID_VANZATOR = m.ID_VANZATOR 
-    -- AND v.ID_VANZATOR = v_id_vanzator
+    AND v.ID_VANZATOR = v_id_vanzator
     -- AND v.VENIT_TOTAL_ADUS >= 1500000
     ORDER BY m.NR_MAGAZINE;
+
 	DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
 	FOR i IN 1..tabou_indexat_pentru_profit.COUNT LOOP
         IF tabou_indexat_pentru_profit(i).t_venit_total_adus > 1500000 THEN    
@@ -252,27 +254,25 @@ BEGIN
     IF tabou_indexat_pentru_profit(i).t_venit_total_adus < 1500000 THEN
       DBMS_OUTPUT.PUT_LINE('Profitul direct este prea mic pentru vanzatorul ' 
                            ||  tabou_indexat_pentru_profit(i).t_id_vanzator );
+	RETURN NULL;
     END IF;
   END LOOP;
 
+  RETURN NULL;
+
 END;
 /
 
+DECLARE
+    vanz vanzator.id_vanzator%TYPE;
 BEGIN 
-    profit;
+    vanz := 'V-05';
+    DECLARE
+        result VARCHAR2(100);
+    BEGIN
+        result := profit(vanz);
+    END;
 END;
 /
 
-DROP PROCEDURE profit;  
-
-SELECT SUM(m.nr_magazine) as TOTAl
-  FROM VANZATOR v, MAGAZIN m
-  WHERE m.ID_VANZATOR = v.id_vanzator
-  AND v.id_vanzator = 'V-01'
-    
-
-select * from vanzator;
-select * from magazin;
-
-INSERT INTO VANZATOR VALUES ('V-06', '---', 200000);
-INSERT INTO MAGAZIN VALUES (UPPER('V-06'), UPPER('eu-02'), 0);
+DROP FUNCTION profit;  
