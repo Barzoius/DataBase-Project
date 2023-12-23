@@ -192,7 +192,7 @@ drop procedure cursoare;
 
 CREATE OR REPLACE FUNCTION profit(vanz IN VARCHAR2) RETURN VARCHAR2 IS 
 
-v_id_vanzator vanzator.id_vanzator%TYPE := 'V-03';
+v_id_vanzator vanzator.id_vanzator%TYPE := vanz;
 
 TYPE tuplu IS RECORD (
     t_nume_tara tara.nume_tara%TYPE,
@@ -209,6 +209,10 @@ tabou_indexat_pentru_profit tabou_indexat;
 
 v_nr_magazine magazin.nr_magazine%TYPE;
 
+fara_magazin EXCEPTION;
+
+profit_direct_prea_mic EXCEPTION;
+
 BEGIN    
 
   SELECT SUM(m.nr_magazine) INTO v_nr_magazine
@@ -217,8 +221,7 @@ BEGIN
   AND v.id_vanzator = v_id_vanzator;
 
   IF v_nr_magazine = 0 THEN
-    DBMS_OUTPUT.PUT_LINE('Vanzatorul nu are magazine');
-    RETURN NULL;
+    RAISE fara_magazin;
   END IF;
 
     SELECT LOWER(t.NUME_TARA), v.ID_VANZATOR, v.NUME_VANZATOR, m.NR_MAGAZINE,  v.VENIT_TOTAL_ADUS, 
@@ -252,13 +255,21 @@ BEGIN
 
   FOR i IN 1..tabou_indexat_pentru_profit.COUNT LOOP
     IF tabou_indexat_pentru_profit(i).t_venit_total_adus < 1500000 THEN
-      DBMS_OUTPUT.PUT_LINE('Profitul direct este prea mic pentru vanzatorul ' 
-                           ||  tabou_indexat_pentru_profit(i).t_id_vanzator );
-	RETURN NULL;
+      RAISE profit_direct_prea_mic;
     END IF;
   END LOOP;
 
   RETURN NULL;
+
+EXCEPTION 
+    WHEN fara_magazin THEN 
+    	DBMS_OUTPUT.PUT_LINE('Vanzatorul ' || v_id_vanzator ||' nu are magazine');
+		RETURN NULL;
+
+	WHEN profit_direct_prea_mic THEN
+        DBMS_OUTPUT.PUT_LINE('Profitul direct este prea mic pentru vanzatorul ' 
+                           ||  v_id_vanzator );
+	RETURN NULL;
 
 END;
 /
@@ -266,7 +277,7 @@ END;
 DECLARE
     vanz vanzator.id_vanzator%TYPE;
 BEGIN 
-    vanz := 'V-05';
+    vanz := 'V-03';
     DECLARE
         result VARCHAR2(100);
     BEGIN
@@ -275,4 +286,4 @@ BEGIN
 END;
 /
 
-DROP FUNCTION profit;  
+DROP FUNCTION profit;
