@@ -289,3 +289,33 @@ END;
 DROP FUNCTION profit;
 
 ------------------(4)------------------
+
+--cerinta:  angajatii/jobul lor/ modelul la care au lucrat si locatia echiperi lor
+CREATE OR REPLACE PROCEDURE cinci_tabele IS 
+-- pune selectul intr-un table/cursor si fa ifuri = slarii prea mici, locatie proasta
+v_id_angajat angajat.id_angajat%TYPE := 'A-03';
+
+
+BEGIN
+
+SELECT a.id_angajat, j.zile_de_lucru, m.id_consola, m.porecla, e.nume_echipa, l.oras
+FROM ANGAJAT a, JOB j, MODEL m, ECHIPA e, LOCATIE l, plan p
+WHERE a.id_echipa = e.id_echipa
+AND p.id_echipa = e.id_echipa
+AND p.id_model = m.id_model
+AND a.id_job = j.id_job    
+AND e.id_locatie = l.id_locatie
+AND a.id_angajat = 'A-02';
+--AND id_angajat = v_id_angajat;    
+
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN 
+ 		DBMS_OUTPUT.PUT_LINE (' no data found: ' ||SQLCODE || ' - ' || SQLERRM);
+	WHEN TOO_MANY_ROWS THEN 
+ 		DBMS_OUTPUT.PUT_LINE (' too many rows: ' ||SQLCODE || ' - '  || SQLERRM);
+	WHEN INVALID_NUMBER THEN 
+ 		DBMS_OUTPUT.PUT_LINE (' invalid number: ' ||SQLCODE || ' - ' || SQLERRM);
+END;
+/
+
+select * from job;
