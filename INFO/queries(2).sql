@@ -532,7 +532,7 @@ DELETE FROM rares_info WHERE id_angajat = 'A-08';
 select * from ang_info;
 select * from rares_info;
 
-----------------------------(11)----------------------------
+----------------------------(12)----------------------------
 
 
 CREATE TABLE evenimente_LDD
