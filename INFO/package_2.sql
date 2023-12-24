@@ -5,8 +5,9 @@ CREATE OR REPLACE PACKAGE pachet_14 AS
 
     TYPE tuplu_info_modele IS RECORD
     (
-        t_id_consola model.id_consola%TYPE;
-        t_id_model model.id_model%TYPE;
+        t_id_generatie consola.id_generatie%TYPE,
+        t_id_consola model.id_consola%TYPE,
+        t_id_model model.id_model%TYPE,
         t_porecla model.porecla%TYPE
     );
 
@@ -45,13 +46,13 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
     -- PROCEDURE 1
     PROCEDURE inset_info_modele IS
     BEGIN
-        SELECT id_consola, id_model, porecla
+        SELECT c.id_generatie, m.id_consola, m.id_model, m.porecla
         BULK COLLECT INTO tabel_info_model
-        FROM MODEL;
+        FROM MODEL m, CONSOLA c
+		WHERE c.id_consola = m.id_consola;
     END inset_info_modele;
 
-	-- PROCEDURE 2
-	PROCEDURE afisare IS
+
 
     -- FUNCTION 1
     FUNCTION echipe_modele(v_id_model model.id_model%TYPE) RETURN vector IS
@@ -72,7 +73,7 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
     -- FUNCTION 2
     FUNCTION nr_angajati(v_id_model model.id_model%TYPE, vec_f2 vector) RETURN NUMBER IS
         nr_ang NUMBER;
-		nr_final_ang NUMBER;
+		nr_final_ang NUMBER := 0;
     BEGIN
         FOR i IN vec_f2.FIRST .. vec_f2.LAST LOOP
         	IF i.id_model = v_id_model THEN
@@ -89,17 +90,41 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
 
     END nr_angajati;
 
+	-- PROCEDURE 2
+	PROCEDURE afisare(v_id_model model.id_model%TYPE) IS
+        
+		nr_ang_pe_model NUMBER;
+        nr_loturi NUMBER;
+		
+        BEGIN
+            
+			FOR i_cursor IN loturi_cur(v_id_model) LOOP
+            	nr_loturi := nr_loturi + 1;
+			END LOOP;
+
+			nr_ang_pe_model := nr_angajati(v_id_model, echipe_modele(v_id_model))
+
+            FOR i in tabel_info_model.FIRST .. tabel_info_model.LAST LOOP
+
+                IF(tabel_info_model(i).id_model = v_id_model) THEN
+                DBMS_OUTPUT.PUT_LINE('MODEL: ' || tabel_info_model(i).id_model ||
+                					 'PORECLA: ' || tabel_info_model(i).porecla ||
+                					 'CONSOLA: ' || tabel_info_model(i).id_consola ||
+                					 'GENERATIE: ' || tabel_info_model(i).id_generatie||
+                					 'NUMAR ANGAJATI CARE AU LUCRAT LA MODEL: ' || nr_ang_pe_model ||
+                					 'LOTURI DISTRIBUITE PENTRU ACEST MODEL: '|| nr_loturi);
+				END IF;
+            END LOOP
+        END afisare;
+
 END pachet_14;
 /
 
-DECLARE
-    nr_ang_pe_model NUMBER;
-BEGIN
-	pachet_14.inset_info_modele;
-	
-    pachet_14.vec = pachet_14.echipe_modele('SCH-1001');
 
-	nr_ang_pe_model = pachet_14.nr_angajati('SCH-1001', pachet_14.vec)
+ DECLARE
+    v_model_id model.id_model%TYPE := 'SCH-4005' ; -- Replace with the desired model ID
+BEGIN
+    pachet_14.afisare(v_model_id);
 END;
 /
 
@@ -111,5 +136,4 @@ select * from echipa;
 select * from angajat;
 select * from plan;
 select * from lot;
-
 
