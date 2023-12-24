@@ -290,25 +290,76 @@ DROP FUNCTION profit;
 
 ------------------(4)------------------
 
---cerinta:  angajatii/jobul lor/ modelul la care au lucrat si locatia echiperi lor
-CREATE OR REPLACE PROCEDURE cinci_tabele IS 
+-- cerinta:  angajatii/jobul lor/ modelul la care au lucrat si locatia echiperi lor
+CREATE OR REPLACE PROCEDURE cinci_tabele(id_ang IN VARCHAR2, 
+    									 min_sal IN FLOAT DEFAULT 2700) IS 
 -- pune selectul intr-un table/cursor si fa ifuri = slarii prea mici, locatie proasta
-v_id_angajat angajat.id_angajat%TYPE := 'A-03';
+v_id_angajat angajat.id_angajat%TYPE := id_ang;
 
+v_salariu_minim angajat.salariu%TYPE := min_sal;
+
+TYPE tuplu IS RECORD (
+    t_id_angajat angajat.id_angajat%TYPE,
+    t_zile_de_lucru job.zile_de_lucru%TYPE,
+    t_salariu angajat.salariu%TYPE,
+    t_id_consola model.id_consola%TYPE,
+    t_porecla model.porecla%TYPE,
+    t_nume_echipa echipa.nume_echipa%TYPE,
+	t_oras locatie.oras%TYPE
+  );
+
+TYPE tabou_indexat IS TABLE OF tuplu INDEX BY PLS_INTEGER;
+
+tablou_indexat_angajat tabou_indexat;
+
+sub_200_zile_lucru EXCEPTION;
+
+salariu_prea_mic EXCEPTION;
 
 BEGIN
 
-SELECT a.id_angajat, j.zile_de_lucru, m.id_consola, m.porecla, e.nume_echipa, l.oras
+SELECT a.id_angajat, j.zile_de_lucru, a.salariu, m.id_consola, m.porecla, e.nume_echipa, l.oras
+BULK COLLECT INTO tablou_indexat_angajat
 FROM ANGAJAT a, JOB j, MODEL m, ECHIPA e, LOCATIE l, plan p
 WHERE a.id_echipa = e.id_echipa
 AND p.id_echipa = e.id_echipa
 AND p.id_model = m.id_model
 AND a.id_job = j.id_job    
 AND e.id_locatie = l.id_locatie
-AND a.id_angajat = 'A-02';
---AND id_angajat = v_id_angajat;    
+--AND a.id_angajat = 'A-02';
+AND id_angajat = v_id_angajat;    
+
+ FOR i IN 1..tablou_indexat_angajat.COUNT LOOP
+    IF tablou_indexat_angajat(i).t_zile_de_lucru < 200 THEN
+      RAISE sub_200_zile_lucru;
+    END IF;
+
+	IF tablou_indexat_angajat(i).t_salariu < v_salariu_minim THEN
+        RAISE salariu_prea_mic;
+	END IF;
+
+	DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+	DBMS_OUTPUT.PUT_LINE(
+              'ID_ANGAJAT: ' || tablou_indexat_angajat(i).t_id_angajat ||
+              ', ZILE DE LUCRU: ' || tablou_indexat_angajat(i).t_zile_de_lucru ||
+              ', SALARIU: ' || tablou_indexat_angajat(i).t_salariu ||
+              ', CONSOLA: ' || tablou_indexat_angajat(i).t_id_consola ||
+              ', PORECLA MODEL: ' || tablou_indexat_angajat(i).t_porecla ||
+              ', NUME_ECHIPA: ' || tablou_indexat_angajat(i).t_nume_echipa ||
+        	  ', ORAS: ' || tablou_indexat_angajat(i).t_oras
+            );
+    DBMS_OUTPUT.PUT_LINE('-----------------------------------------------------------------');
+     
+  END LOOP;
 
 EXCEPTION
+
+    WHEN sub_200_zile_lucru THEN
+    	DBMS_OUTPUT.PUT_LINE('Angajatul ' || v_id_angajat || ' are sub 200 de zile de lucru pe an');
+
+	WHEN salariu_prea_mic THEN
+        DBMS_OUTPUT.PUT_LINE('Salariul angajatului ' || v_id_angajat || ' este sub ' || v_salariu_minim);
+
 	WHEN NO_DATA_FOUND THEN 
  		DBMS_OUTPUT.PUT_LINE (' no data found: ' ||SQLCODE || ' - ' || SQLERRM);
 	WHEN TOO_MANY_ROWS THEN 
@@ -318,4 +369,18 @@ EXCEPTION
 END;
 /
 
-select * from job;
+
+    
+DECLARE
+    
+p_id_angajat angajat.id_angajat%TYPE := 'A-01';
+
+p_salariu_minim angajat.salariu%TYPE;
+
+BEGIN
+	cinci_tabele(p_id_angajat, min_sal => p_salariu_minim);
+END;
+/
+
+
+--DROP procedure cinci_tabele;
