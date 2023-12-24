@@ -41,7 +41,8 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
     CURSOR loturi_cur(v_id_model model.id_model%TYPE) IS
         SELECT m.id_model, l.id_lot
         FROM model m, lot l
-        WHERE l.id_model = v_id_model
+        WHERE l.id_model = v_id_model;
+
 
     -- PROCEDURE 1
     PROCEDURE inset_info_modele IS
@@ -99,8 +100,8 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
         BEGIN
             
 			FOR i_cursor IN loturi_cur(v_id_model) LOOP
-            	nr_loturi := nr_loturi + 1;
-			END LOOP;
+    			nr_loturi := nr_loturi + 1;
+		END LOOP;
 
 			nr_ang_pe_model := nr_angajati(v_id_model, echipe_modele(v_id_model))
 
@@ -122,7 +123,7 @@ END pachet_14;
 
 
  DECLARE
-    v_model_id model.id_model%TYPE := 'SCH-4005' ; -- Replace with the desired model ID
+    v_model_id model.id_model%TYPE := 'SCH-4005' ; -
 BEGIN
     pachet_14.afisare(v_model_id);
 END;
