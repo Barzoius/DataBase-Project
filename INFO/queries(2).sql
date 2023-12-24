@@ -188,7 +188,6 @@ select * from job;
 drop procedure cursoare;
 
 ------------------(3)------------------
---incearca V-02, V-03, V-05
 
 CREATE OR REPLACE FUNCTION profit(vanz IN VARCHAR2) RETURN VARCHAR2 IS 
 
@@ -219,6 +218,19 @@ BEGIN
   FROM VANZATOR v, MAGAZIN m
   WHERE m.ID_VANZATOR = v.id_vanzator
   AND v.id_vanzator = v_id_vanzator;
+
+  	DBMS_OUTPUT.PUT_LINE('----------------------------------(8)---------------------------------');
+    DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o rezolvați 
+folosind un subprogram stocat independent de tip funcție care să utilizeze într-o singură 
+comandă SQL 3 dintre tabelele definite. Definiți minim 2 excepții proprii. 
+Apelați subprogramul astfel încât să evidențiați toate cazurile definite și tratate.');
+    DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('PROBLEMA: Afisati tarile in care vanaztorului dat ca parametru functiei
+are magazine, numele vanzatorului, numarul de magazine, venitul total adus si daca acel
+vanzator aduce profit cu magazinele din tara respectiva. Ca informatiile sa fie afisate,
+vanaztorul trebuie sa aiba magazine(sa nu fie magazin online), iar ca venitul total
+adus sa fie mai mare ca 1500000 alfel profitul direct al vanzatorului este prea mic.' );
+    DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
 
   IF v_nr_magazine = 0 THEN
     RAISE fara_magazin;
@@ -277,7 +289,11 @@ END;
 DECLARE
     vanz vanzator.id_vanzator%TYPE;
 BEGIN 
-    vanz := 'V-03';
+    --V-02 => fara eroare
+    --V-03 => profit direct prea mic
+    --V-05 => nu are magazine
+    
+    vanz := 'V-02';
     DECLARE
         result VARCHAR2(100);
     BEGIN
