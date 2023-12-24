@@ -448,7 +448,6 @@ CREATE OR REPLACE VIEW rares_info AS
 ------------------------------------
 ----------------------------(10)---------------------------
 
-
 CREATE OR REPLACE TRIGGER rares_trigger_com
 INSTEAD OF INSERT OR DELETE OR UPDATE ON rares_info
 
@@ -474,3 +473,61 @@ set salariu = 10000
 where nationalitate = 'ROMAN';
 
 drop trigger rares_trigger_com;
+
+----------------------------(11)----------------------------
+
+CREATE OR REPLACE TRIGGER rares_trigger_line
+INSTEAD OF INSERT OR DELETE ON rares_info
+FOR EACH ROW
+    
+DECLARE
+    rares_nume EXCEPTION;
+
+BEGIN
+    
+IF INSERTING THEN
+	IF :NEW.nume != 'RARES' THEN
+        RAISE rares_nume;
+	END IF;
+
+	 INSERT INTO ang_info
+    VALUES (
+        :NEW.id_angajat,
+        :NEW.nume,
+        :NEW.prenume,
+        :NEW.email,
+        :NEW.nr_telefon,
+        :NEW.sex,
+        :NEW.nationalitate,
+        :NEW.salariu,
+        :NEW.id_echipa,
+        :NEW.id_job
+    );
+
+ELSIF DELETING THEN
+    DELETE  FROM ang_info
+    WHERE id_angajat = :OLD.id_angajat;	
+
+END IF;
+
+EXCEPTION
+    WHEN rares_nume THEN
+    	DBMS_OUTPUT.PUT_LINE('Numele angajatului nou nu este rares deci nu o sa fie inserat
+in rares_info dar a fost totusi inserat in ang_info.');
+		INSERT INTO ang_info
+    	VALUES(:NEW.id_angajat, :NEW.nume, :NEW.prenume, :NEW.email, :NEW.nr_telefon,
+    	   	   :NEW.sex, :NEW.nationalitate, :NEW.salariu, :NEW.id_echipa, :NEW.id_job);
+		
+END;
+/
+
+INSERT INTO rares_info VALUES('A-06', 'DANELO', 'MOISEL', 
+    'ozy.sdaasd@gmail.com', '083223939','M', 'FRANCEZ', 2300, 'E-01', 'J-01');
+
+INSERT INTO rares_info VALUES('A-08', 'RARES', 'GATO', 
+    'gato.sddsssd@gmail.com', '063223939','M', 'ITALIAN', 2600, 'E-02', 'J-03');
+
+DELETE FROM rares_info WHERE id_angajat = 'A-08';
+
+select * from ang_info;
+select * from rares_info;
