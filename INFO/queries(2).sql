@@ -531,3 +531,38 @@ DELETE FROM rares_info WHERE id_angajat = 'A-08';
 
 select * from ang_info;
 select * from rares_info;
+
+----------------------------(11)----------------------------
+
+
+CREATE TABLE evenimente_LDD
+    (
+    	actiune VARCHAR2(100),
+    	entitate VARCHAR2(100),
+        ziua DATE,
+    	ora VARCHAR(10)
+    );
+
+drop table evenimente_LDD;
+
+
+CREATE OR REPLACE TRIGGER rares_trigger_LDD
+BEFORE CREATE OR DROP ON SCHEMA
+
+DECLARE
+        v_event_H_M VARCHAR2(10);    
+
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('ACTIUNEA: '|| SYS.SYSEVENT || ' S-A APLICAT PE ENTITATEA ' ||  SYS.DICTIONARY_OBJ_NAME);	
+
+	v_event_H_M := TO_CHAR(SYSDATE, 'HH24:MI');
+
+	INSERT INTO evenimente_LDD
+        VALUES(SYS.SYSEVENT, SYS.DICTIONARY_OBJ_NAME, SYSDATE, v_event_H_M );
+END;
+/
+
+
+select * from evenimente_LDD;
+
+drop trigger rares_trigger_LDD;
