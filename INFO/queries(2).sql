@@ -435,16 +435,19 @@ DROP procedure cinci_tabele;
 
 select * from angajat;
 
---------------------------triggere-------------------------------------
-
-----------------------------(10)---------------------------
+--------------------------triggere--------------------------
+--------View-uri folosite---------
+CREATE OR REPLACE VIEW ang_info AS
+    SELECT *
+    FROM ANGAJAT;
 
 CREATE OR REPLACE VIEW rares_info AS
 	SELECT *
-	FROM ANGAJAT
+	FROM ang_info
 	WHERE nume = 'RARES';
+------------------------------------
+----------------------------(10)---------------------------
 
-select * from rares_info;
 
 CREATE OR REPLACE TRIGGER rares_trigger_com
 INSTEAD OF INSERT OR DELETE OR UPDATE ON rares_info
