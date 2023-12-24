@@ -290,10 +290,9 @@ DROP FUNCTION profit;
 
 ------------------(4)------------------
 
--- cerinta:  angajatii/jobul lor/ modelul la care au lucrat si locatia echiperi lor
 CREATE OR REPLACE PROCEDURE cinci_tabele(id_ang IN VARCHAR2, 
-    									 min_sal IN FLOAT DEFAULT 2700) IS 
--- pune selectul intr-un table/cursor si fa ifuri = slarii prea mici, locatie proasta
+    					 min_sal angajat.salariu%TYPE DEFAULT 2700) IS 
+
 v_id_angajat angajat.id_angajat%TYPE := id_ang;
 
 v_salariu_minim angajat.salariu%TYPE := min_sal;
@@ -326,8 +325,25 @@ AND p.id_echipa = e.id_echipa
 AND p.id_model = m.id_model
 AND a.id_job = j.id_job    
 AND e.id_locatie = l.id_locatie
---AND a.id_angajat = 'A-02';
 AND id_angajat = v_id_angajat;    
+
+DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
+DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o rezolvați 
+folosind un subprogram stocat independent de tip procedură care să utilizeze într-o singură 
+comandă SQL 5 dintre tabelele definite. Tratați toate excepțiile care pot apărea, incluzând 
+excepțiile NO_DATA_FOUND și TOO_MANY_ROWS. 
+Apelați subprogramul astfel încât să evidențiați toate cazurile tratate.');
+DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
+DBMS_OUTPUT.PUT_LINE('PROBLEMA: Sa se stocheze intr-un tabel si sa se afiseze din acesta
+urmatoarele infromatii relevante despre un angajat: Id-ul acestuia, zilele de lucru,
+salariul, consolele si porecla consolelor la care a lucrat, numele echipei in care lucreaza,
+si orasul in care se afla echipa lui. Penctru consolele la care angajatul a lucrat nu se
+va crea un vreo structura de date ci va exista o inserare specifica ei in tabel.
+De asemenea numarul de zile de lucru al angajatului trebuie sa fie mai mare de 200 si
+salariul lui mai mare decat limita minimia data ca parametru procedurii.' );
+DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
+
+DBMS_OUTPUT.PUT_LINE('Salariu_minim: ' || min_sal);
 
  FOR i IN 1..tablou_indexat_angajat.COUNT LOOP
     IF tablou_indexat_angajat(i).t_zile_de_lucru < 200 THEN
@@ -370,12 +386,13 @@ END;
 /
 
 
-    
+--Pentru A-03 si 2800  => eroare de salariu
+--Pentru A-01 => eroare de zile de lucru
 DECLARE
     
 p_id_angajat angajat.id_angajat%TYPE := 'A-01';
 
-p_salariu_minim angajat.salariu%TYPE;
+p_salariu_minim angajat.salariu%TYPE := 2800;
 
 BEGIN
 	cinci_tabele(p_id_angajat, min_sal => p_salariu_minim);
@@ -383,4 +400,4 @@ END;
 /
 
 
---DROP procedure cinci_tabele;
+DROP procedure cinci_tabele;
