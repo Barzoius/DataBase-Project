@@ -339,8 +339,7 @@ AND p.id_model = m.id_model
 AND a.id_job = j.id_job    
 AND e.id_locatie = l.id_locatie
 AND id_angajat = v_id_angajat;    
-
-DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
+DBMS_OUTPUT.PUT_LINE('----------------------------------(9)---------------------------------');
 DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o rezolvați 
 folosind un subprogram stocat independent de tip procedură care să utilizeze într-o singură 
 comandă SQL 5 dintre tabelele definite. Tratați toate excepțiile care pot apărea, incluzând 
