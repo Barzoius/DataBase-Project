@@ -1,7 +1,7 @@
 CREATE OR REPLACE PACKAGE pachet_14 AS
 
     -- Cerinta orice informatie posibila despre o consola
-   CURSOR loturi_cur(v_id_model model.id_model%TYPE);
+   CURSOR loturi_cur(v_id_model model.id_model%TYPE) RETURN model%ROWTYPE;
 
     TYPE tuplu_info_modele IS RECORD
     (
@@ -15,7 +15,7 @@ CREATE OR REPLACE PACKAGE pachet_14 AS
 
     TYPE tuplu_echi_model IS RECORD
     (
-        t_id_echipa echipa.id_echipa%TYPE;
+        t_id_echipa echipa.id_echipa%TYPE,
         t_id_model model.id_model%TYPE
     );
 
