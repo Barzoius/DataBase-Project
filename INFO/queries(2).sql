@@ -290,6 +290,7 @@ DROP FUNCTION profit;
 
 ------------------(4)------------------
 
+
 CREATE OR REPLACE PROCEDURE cinci_tabele(id_ang IN VARCHAR2, 
     					 min_sal angajat.salariu%TYPE DEFAULT 2700) IS 
 
@@ -315,7 +316,19 @@ sub_200_zile_lucru EXCEPTION;
 
 salariu_prea_mic EXCEPTION;
 
+pt_err_nume_angajat angajat.nume%TYPE := 'DAN';
+pt_err_id_angajat angajat.id_angajat%TYPE;
+
 BEGIN
+
+--Aceasta bucata este adaugata doar pentru a scote in evidenta
+--eroarea too_many_rows. Puneti 'RARES' la pt_err_nume_nagajat
+--pentru a da erorare sau 'DAN' pentru a nu da eroarea.
+
+SELECT id_angajat 
+INTO pt_err_id_angajat
+FROM angajat
+WHERE nume = pt_err_nume_angajat;
 
 SELECT a.id_angajat, j.zile_de_lucru, a.salariu, m.id_consola, m.porecla, e.nume_echipa, l.oras
 BULK COLLECT INTO tablou_indexat_angajat
@@ -343,6 +356,7 @@ De asemenea numarul de zile de lucru al angajatului trebuie sa fie mai mare de 2
 salariul lui mai mare decat limita minimia data ca parametru procedurii.' );
 DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------------');
 
+DBMS_OUTPUT.PUT_LINE('Id_angajat: ' || v_id_angajat);
 DBMS_OUTPUT.PUT_LINE('Salariu_minim: ' || min_sal);
 
  FOR i IN 1..tablou_indexat_angajat.COUNT LOOP
@@ -377,9 +391,11 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Salariul angajatului ' || v_id_angajat || ' este sub ' || v_salariu_minim);
 
 	WHEN NO_DATA_FOUND THEN 
- 		DBMS_OUTPUT.PUT_LINE (' no data found: ' ||SQLCODE || ' - ' || SQLERRM);
+ 		--DBMS_OUTPUT.PUT_LINE (' no data found: ' ||SQLCODE || ' - ' || SQLERRM);
+		RAISE_APPLICATION_ERROR(-20999, 'Angajatul nu exista');
 	WHEN TOO_MANY_ROWS THEN 
  		DBMS_OUTPUT.PUT_LINE (' too many rows: ' ||SQLCODE || ' - '  || SQLERRM);
+		DBMS_OUTPUT.PUT_LINE('Ati ales numele RARES, alegeti DAN pentru a nu da aceasta eroare');
 	WHEN INVALID_NUMBER THEN 
  		DBMS_OUTPUT.PUT_LINE (' invalid number: ' ||SQLCODE || ' - ' || SQLERRM);
 END;
@@ -387,10 +403,10 @@ END;
 
 
 --Pentru A-03 si 2800  => eroare de salariu
---Pentru A-01 => eroare de zile de lucru
+--Pentru A-02 => eroare de zile de lucru
 DECLARE
     
-p_id_angajat angajat.id_angajat%TYPE := 'A-01';
+p_id_angajat angajat.id_angajat%TYPE := 'A-101';
 
 p_salariu_minim angajat.salariu%TYPE := 2800;
 
@@ -401,3 +417,6 @@ END;
 
 
 DROP procedure cinci_tabele;
+
+select * from angajat;
+
