@@ -435,3 +435,39 @@ DROP procedure cinci_tabele;
 
 select * from angajat;
 
+--------------------------triggere-------------------------------------
+
+----------------------------(10)---------------------------
+
+CREATE OR REPLACE VIEW rares_info AS
+	SELECT *
+	FROM ANGAJAT
+	WHERE nume = 'RARES';
+
+select * from rares_info;
+
+CREATE OR REPLACE TRIGGER rares_trigger_com
+INSTEAD OF INSERT OR DELETE OR UPDATE ON rares_info
+
+DECLARE
+
+    rares_roman EXCEPTION;
+
+BEGIN
+    
+IF(:OLD.nationalitate = 'ROMAN') THEN
+RAISE rares_roman;
+END IF;
+
+EXCEPTION
+    WHEN rares_roman THEN
+    	DBMS_OUTPUT.PUT_LINE('Nu se pot face modificari pe rares-ul care e roman.');
+
+END;
+/
+
+UPDATE rares_info
+set salariu = 10000
+where nationalitate = 'ROMAN';
+
+drop trigger rares_trigger_com;
