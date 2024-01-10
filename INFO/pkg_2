@@ -24,7 +24,7 @@ TYPE tuplu_info_modele IS RECORD
 
 	FUNCTION echipe_modele(v_id_model model.id_model%TYPE) RETURN vector;
 
-    FUNCTION nr_angajati(v_id_model model.id_model%TYPE) RETURN NUMBER;
+ 	FUNCTION nr_angajati(v_id_model model.id_model%TYPE, vec_f2 vector) RETURN NUMBER;
 
 END pachet_14;
 /
@@ -62,20 +62,24 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
     END echipe_modele;
 
 	-- FUNCTION 2
-    FUNCTION nr_angajati(v_id_model model.id_model%TYPE, vec_f2 vector) RETURN NUMBER IS
+     FUNCTION nr_angajati(v_id_model model.id_model%TYPE, vec_f2 vector) RETURN NUMBER IS
         nr_ang NUMBER;
 		nr_final_ang NUMBER := 0;
-    BEGIN
-        FOR i IN vec_f2.FIRST .. vec_f2.LAST LOOP
-        	IF i.id_model = v_id_model THEN
-        		SELECT COUNT(*)
-        		INTO nr_ang
-        		FROM angajat
-        	    where id_echipa = i.id_echipa;
 
-				nr_final_ang := nr_final_ang + nr_ang;
+        --t_id_echipa echipa.id_echipa%TYPE,
+       -- t_id_model model.id_model%TYPE
+    BEGIN
+        FOR i IN 1 .. vec_f2.COUNT LOOP
+        	IF vec_f2(i).t_id_model = v_id_model THEN
+                SELECT COUNT(*)
+                INTO nr_ang
+                FROM angajat
+                WHERE id_echipa = vec_f2(i).t_id_echipa;
+    
+                nr_final_ang := nr_final_ang + nr_ang;
         	END IF;
       	END LOOP;
+
 
         RETURN nr_final_ang;
 
@@ -88,11 +92,11 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
 
         BEGIN
             
-			nr_ang_pe_model := nr_angajati(v_id_model, echipe_modele(v_id_model))
+			nr_ang_pe_model := nr_angajati(v_id_model, echipe_modele(v_id_model));
 
             FOR i in tabel_info_model.FIRST .. tabel_info_model.LAST LOOP
 
-                IF (tabel_info_model(i).t_id_model = v_id_model) THEN -- Corrected this line
+                IF (tabel_info_model(i).t_id_model = v_id_model) THEN 
                 DBMS_OUTPUT.PUT_LINE('MODEL: ' || tabel_info_model(i).t_id_model ||
                                      'PORECLA: ' || tabel_info_model(i).t_porecla ||
                                      'CONSOLA: ' || tabel_info_model(i).t_id_consola ||
@@ -105,4 +109,11 @@ CREATE OR REPLACE PACKAGE BODY pachet_14 AS
         END afisare;
 
 END pachet_14;
+/
+
+DECLARE
+    v_model_id model.id_model%TYPE := 'SCH-4005' ; 
+BEGIN
+    pachet_14.afisare(v_model_id);
+END;
 /
