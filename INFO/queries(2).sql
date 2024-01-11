@@ -308,6 +308,7 @@ DROP FUNCTION profit;
 
 
 CREATE OR REPLACE PROCEDURE cinci_tabele(id_ang IN VARCHAR2, 
+    						err_nume angajat.nume%TYPE,
     					 min_sal angajat.salariu%TYPE DEFAULT 2700) IS 
 
 v_id_angajat angajat.id_angajat%TYPE := id_ang;
@@ -332,7 +333,7 @@ sub_200_zile_lucru EXCEPTION;
 
 salariu_prea_mic EXCEPTION;
 
-pt_err_nume_angajat angajat.nume%TYPE := 'DAN';
+pt_err_nume_angajat angajat.nume%TYPE := err_nume;
 pt_err_id_angajat angajat.id_angajat%TYPE;
 
 BEGIN
@@ -346,6 +347,13 @@ INTO pt_err_id_angajat
 FROM angajat
 WHERE nume = pt_err_nume_angajat;
 
+
+SELECT id_angajat 
+INTO pt_err_id_angajat
+FROM angajat
+WHERE id_angajat  = v_id_angajat;
+
+
 SELECT a.id_angajat, j.zile_de_lucru, a.salariu, m.id_consola, m.porecla, e.nume_echipa, l.oras
 BULK COLLECT INTO tablou_indexat_angajat
 FROM ANGAJAT a, JOB j, MODEL m, ECHIPA e, LOCATIE l, plan p
@@ -355,6 +363,7 @@ AND p.id_model = m.id_model
 AND a.id_job = j.id_job    
 AND e.id_locatie = l.id_locatie
 AND id_angajat = v_id_angajat;    
+
 DBMS_OUTPUT.PUT_LINE('----------------------------------(9)---------------------------------');
 DBMS_OUTPUT.PUT_LINE('CERINTA: Formulați în limbaj natural o problemă pe care să o rezolvați 
 folosind un subprogram stocat independent de tip procedură care să utilizeze într-o singură 
@@ -406,29 +415,41 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Salariul angajatului ' || v_id_angajat || ' este sub ' || v_salariu_minim);
 
 	WHEN NO_DATA_FOUND THEN 
- 		--DBMS_OUTPUT.PUT_LINE (' no data found: ' ||SQLCODE || ' - ' || SQLERRM);
-		RAISE_APPLICATION_ERROR(-20999, 'Angajatul nu exista');
+ 		DBMS_OUTPUT.PUT_LINE (' no data found: ' ||SQLCODE || ' - ' || SQLERRM);
+		DBMS_OUTPUT.PUT_LINE('Angajatul cu codul: '|| v_id_angajat || ' nu exista');
+		--RAISE_APPLICATION_ERROR(-20999, 'Angajatul nu exista');
+
 	WHEN TOO_MANY_ROWS THEN 
  		DBMS_OUTPUT.PUT_LINE (' too many rows: ' ||SQLCODE || ' - '  || SQLERRM);
 		DBMS_OUTPUT.PUT_LINE('Ati ales numele RARES, alegeti DAN pentru a nu da aceasta eroare');
+
 	WHEN INVALID_NUMBER THEN 
  		DBMS_OUTPUT.PUT_LINE (' invalid number: ' ||SQLCODE || ' - ' || SQLERRM);
 END;
 /
 
 
+
 --Pentru A-03 si 2800  => eroare de salariu
---Pentru A-02 => eroare de zile de lucru
+--Pentru A-01 => eroare de zile de lucru
+    
+--Puneti 'RARES' la pt_err_nume_nagajat
+--pentru a da erorarea too_many_rows
+--sau 'DAN' pentru a nu da eroarea.
+    
 DECLARE
     
-p_id_angajat angajat.id_angajat%TYPE := 'A-101';
+p_id_angajat angajat.id_angajat%TYPE := 'A-01';
 
 p_salariu_minim angajat.salariu%TYPE := 2800;
 
+err_name angajat.nume%TYPE := 'DAN';
+
 BEGIN
-	cinci_tabele(p_id_angajat, min_sal => p_salariu_minim);
+	cinci_tabele(p_id_angajat, err_name, min_sal => p_salariu_minim);
 END;
 /
+
 
 
 DROP procedure cinci_tabele;
