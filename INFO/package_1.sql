@@ -1,8 +1,11 @@
+
+
+
 CREATE OR REPLACE PACKAGE pachet_13 AS
 	 PROCEDURE gestionare_angajati; --6
 	 PROCEDURE cursoare; --7
 	 FUNCTION profit(vanz IN VARCHAR2) RETURN VARCHAR2; --8
-	 PROCEDURE cinci_tabele(id_ang IN VARCHAR2, min_sal angajat.salariu%TYPE DEFAULT 2700); --9
+	 PROCEDURE cinci_tabele(id_ang IN VARCHAR2, err_nume angajat.nume%TYPE, min_sal angajat.salariu%TYPE DEFAULT 2700); --9
 END pachet_13;
 /
 
@@ -269,10 +272,12 @@ CREATE OR REPLACE PACKAGE BODY pachet_13 AS
 
 -----------------------------------(9)----------------------------------------
 
-PROCEDURE cinci_tabele(id_ang IN VARCHAR2, 
+PROCEDURE cinci_tabele(id_ang IN VARCHAR2, err_nume angajat.nume%TYPE,
     					 min_sal angajat.salariu%TYPE DEFAULT 2700) IS 
 
 v_id_angajat angajat.id_angajat%TYPE := id_ang;
+
+pt_err_nume_angajat angajat.nume%TYPE := err_nume;
 
 v_salariu_minim angajat.salariu%TYPE := min_sal;
 
@@ -294,7 +299,7 @@ sub_200_zile_lucru EXCEPTION;
 
 salariu_prea_mic EXCEPTION;
 
-pt_err_nume_angajat angajat.nume%TYPE := 'DAN';
+
 pt_err_id_angajat angajat.id_angajat%TYPE;
 
 BEGIN
@@ -307,6 +312,11 @@ SELECT id_angajat
 INTO pt_err_id_angajat
 FROM angajat
 WHERE nume = pt_err_nume_angajat;
+
+SELECT id_angajat 
+INTO pt_err_id_angajat
+FROM angajat
+WHERE id_angajat  = v_id_angajat;
 
 SELECT a.id_angajat, j.zile_de_lucru, a.salariu, m.id_consola, m.porecla, e.nume_echipa, l.oras
 BULK COLLECT INTO tablou_indexat_angajat
@@ -391,8 +401,10 @@ DECLARE
 	p_id_angajat angajat.id_angajat%TYPE := 'A-01';
 
 	p_salariu_minim angajat.salariu%TYPE := 2800;
+
+	err_name angajat.nume%TYPE := 'DAN';
 BEGIN 
-	--pachet_13.gestionare_angajati;
+	pachet_13.gestionare_angajati;
     
 	--pachet_13.cursoare;
 
@@ -403,7 +415,7 @@ BEGIN
 	
 	--result := pachet_13.profit(vanz);
 
-	pachet_13.cinci_tabele(p_id_angajat, min_sal => p_salariu_minim);
+	pachet_13.cinci_tabele(p_id_angajat, err_name, min_sal => p_salariu_minim);
 	
 END;
 /
